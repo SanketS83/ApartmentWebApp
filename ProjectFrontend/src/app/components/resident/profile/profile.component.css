@@ -1,0 +1,12 @@
+.card {
+  border-radius: 12px;
+}
+
+.input-group-text {
+  background-color: #f8fafc;
+  border-color: #dee2e6;
+}
+
+.list-group-item {
+  padding: 0.85rem 1rem;
+}

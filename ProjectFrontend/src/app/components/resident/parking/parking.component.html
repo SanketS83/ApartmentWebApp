@@ -1,0 +1,1 @@
+<div class="card"><h2>Allocated Parking Slot</h2><div *ngFor="let p of parkingList"><p><strong>Slot Number:</strong> {{ p.parkingNumber }}</p><p><strong>Vehicle:</strong> {{ p.vehicleNumber || "Not registered" }}</p></div><p *ngIf="!parkingList.length">No parking space assigned to your flat yet.</p></div>

@@ -1,0 +1,14 @@
+<div class="guard-wrapper">
+  <header class="guard-nav">
+    <div class="guard-brand"><i class="bi bi-shield-check me-2"></i>Gatehouse Security Portal</div>
+    <nav class="guard-menu">
+      <a routerLink="/guard/dashboard" routerLinkActive="active"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+      <a routerLink="/guard/visitors" routerLinkActive="active"><i class="bi bi-person-badge me-1"></i>Visitor Check-in</a>
+      <a routerLink="/guard/profile" routerLinkActive="active"><i class="bi bi-person-lines-fill me-1"></i>Duty Profile</a>
+      <button class="logout-btn" (click)="logout()"><i class="bi bi-box-arrow-right me-1"></i>End Shift</button>
+    </nav>
+  </header>
+  <main class="guard-body">
+    <router-outlet></router-outlet>
+  </main>
+</div>

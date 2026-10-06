@@ -1,0 +1,34 @@
+<div class="admin-login-screen">
+  <div class="card shadow p-4 rounded-4 bg-white" style="max-width: 440px; width: 100%;">
+    <a routerLink="/" class="text-decoration-none text-secondary mb-3 small d-inline-block">
+      <i class="bi bi-arrow-left me-1"></i> Return to Guest Portal
+    </a>
+    <div class="text-center mb-3">
+      <div class="d-inline-flex p-3 rounded-circle bg-primary bg-opacity-10 text-primary">
+        <i class="bi bi-shield-shaded fs-1"></i>
+      </div>
+    </div>
+    <h2 class="text-center fs-4 fw-bold text-dark mb-1">Society Administration</h2>
+    <p class="text-center text-muted mb-4 small">Executive management portal</p>
+    <form (ngSubmit)="login()">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Admin Username</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person"></i></span>
+          <input type="text" class="form-control" [(ngModel)]="username" name="u" placeholder="admin" required />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Password</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-key"></i></span>
+          <input type="password" class="form-control" [(ngModel)]="password" name="p" placeholder="Enter password"
+            required />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="isLoading">
+        <i class="bi bi-box-arrow-in-right me-1"></i> {{ isLoading ? 'Verifying...' : 'Sign In as Admin' }}
+      </button>
+    </form>
+  </div>
+</div>

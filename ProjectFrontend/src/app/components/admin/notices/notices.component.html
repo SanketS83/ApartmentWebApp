@@ -1,0 +1,64 @@
+
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit Notice' : 'Publish New Notice' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-6 mb-3">
+            <label for="title" class="form-label">Notice Title</label>
+            <input type="text" class="form-control" [(ngModel)]="currentNotice.title" id="title" placeholder="e.g. Annual General Meeting">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="noticeDate" class="form-label">Notice Date</label>
+            <input type="date" class="form-control" [(ngModel)]="currentNotice.noticeDate" id="noticeDate">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="currentNotice.isActive" id="status">
+                <option [ngValue]="true">Active (Visible)</option>
+                <option [ngValue]="false">Archived</option>
+            </select>
+        </div>
+        <div class="col-12 mb-3">
+            <label for="desc" class="form-label">Detailed Notice Content</label>
+            <textarea class="form-control" [(ngModel)]="currentNotice.description" id="desc" rows="3" placeholder="Provide full details of the notice..."></textarea>
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveNotice()">Save</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateNotice()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Title</th>
+        <th>Notice Date</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let n of notices; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{n.title}}</strong></td>
+        <td>{{n.noticeDate}}</td>
+        <td>{{n.description}}</td>
+        <td><span class="badge" [ngClass]="n.isActive ? 'bg-success' : 'bg-secondary'">{{n.isActive ? 'Active' : 'Archived'}}</span></td>
+        <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editNotice(n)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteNotice(n.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

@@ -1,0 +1,88 @@
+
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit / Resolve Complaint' : 'Add New Complaint' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-6 mb-3">
+            <label for="subject" class="form-label">Subject / Title</label>
+            <input type="text" class="form-control" [(ngModel)]="currentComplaint.subject" id="subject" placeholder="e.g. Water leakage in bathroom">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select class="form-select" [(ngModel)]="currentComplaint.category" id="category">
+                <option value="Plumbing">Plumbing</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Cleanliness">Cleanliness</option>
+                <option value="Security">Security</option>
+                <option value="Noise">Noise</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-select" [(ngModel)]="currentComplaint.priority" id="priority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="status" class="form-label">Resolution Status</label>
+            <select class="form-select" [(ngModel)]="currentComplaint.status" id="status">
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+            </select>
+        </div>
+        <div class="col-md-8 mb-3">
+            <label for="desc" class="form-label">Description</label>
+            <input type="text" class="form-control" [(ngModel)]="currentComplaint.description" id="desc" placeholder="Details of the issue">
+        </div>
+        <div class="col-12 mb-3" *ngIf="isEdit">
+            <label for="notes" class="form-label">Admin Reply / Action Taken</label>
+            <textarea class="form-control" [(ngModel)]="currentComplaint.adminReply" id="notes" rows="2"></textarea>
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveComplaint()">Save</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateComplaint()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Subject</th>
+        <th>Resident</th>
+        <th>Category</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let c of complaints; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{c.subject}}</strong></td>
+        <td>{{c.resident?.name || 'Resident'}}</td>
+        <td>{{c.category}}</td>
+        <td><span class="badge" [ngClass]="c.priority === 'High' || c.priority === 'Urgent' ? 'bg-danger' : 'bg-info text-dark'">{{c.priority}}</span></td>
+        <td><span class="badge" [ngClass]="c.status === 'Resolved' ? 'bg-success' : (c.status === 'In Progress' ? 'bg-primary' : 'bg-warning')">{{c.status}}</span></td>
+        <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editComplaint(c)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteComplaint(c.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

@@ -1,0 +1,78 @@
+
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit Security Guard' : 'Add New Security Guard' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <label for="guardName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" [(ngModel)]="currentGuard.name" id="guardName" placeholder="Ramesh Singh">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="guardUsername" class="form-label">Username (Gate Login)</label>
+            <input type="text" class="form-control" [(ngModel)]="currentGuard.username" id="guardUsername" placeholder="guard1">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="guardPhone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" [(ngModel)]="currentGuard.phone" id="guardPhone" placeholder="9812345678">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="guardPassword" class="form-label">Password</label>
+            <input type="text" class="form-control" [(ngModel)]="currentGuard.password" id="guardPassword" placeholder="guard123">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="shift" class="form-label">Allocated Shift</label>
+            <select class="form-select" [(ngModel)]="currentGuard.shift" id="shift">
+                <option value="Day">Day Shift (08:00 - 20:00)</option>
+                <option value="Night">Night Shift (20:00 - 08:00)</option>
+                <option value="General">General Shift</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="guardStatus" class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="currentGuard.isActive" id="guardStatus">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+            </select>
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveGuard()">Save</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateGuard()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Phone</th>
+        <th>Shift</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let g of guards; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{g.name}}</strong></td>
+        <td><code>{{g.username}}</code></td>
+        <td>{{g.phone}}</td>
+        <td><span class="badge bg-primary">{{g.shift}}</span></td>
+        <td><span class="badge" [ngClass]="g.isActive ? 'bg-success' : 'bg-secondary'">{{g.isActive ? 'Active' : 'Inactive'}}</span></td>
+        <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editGuard(g)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteGuard(g.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

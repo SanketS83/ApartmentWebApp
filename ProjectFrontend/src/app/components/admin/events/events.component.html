@@ -1,0 +1,67 @@
+<h2>Society Events Management</h2>
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit Event' : 'Schedule New Event' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-6 mb-3">
+            <label for="title" class="form-label">Event Title</label>
+            <input type="text" class="form-control" [(ngModel)]="currentEvent.title" id="title" placeholder="e.g. Diwali Carnival & Dinner">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="eventDate" class="form-label">Event Date</label>
+            <input type="date" class="form-control" [(ngModel)]="currentEvent.eventDate" id="eventDate">
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="eventTime" class="form-label">Event Time</label>
+            <input type="time" class="form-control" [(ngModel)]="currentEvent.eventTime" id="eventTime">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="venue" class="form-label">Venue</label>
+            <input type="text" class="form-control" [(ngModel)]="currentEvent.venue" id="venue" placeholder="e.g. Community Clubhouse / Lawn">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="desc" class="form-label">Description & Activities</label>
+            <input type="text" class="form-control" [(ngModel)]="currentEvent.description" id="desc" placeholder="Details about games, food, etc.">
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveEvent()">Save</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateEvent()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Event Title</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Venue</th>
+        <th>Description</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let e of events; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{e.title}}</strong></td>
+        <td>{{e.eventDate}}</td>
+        <td>{{e.eventTime}}</td>
+        <td>{{e.venue}}</td>
+        <td>{{e.description}}</td>
+        <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editEvent(e)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteEvent(e.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

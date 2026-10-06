@@ -1,0 +1,93 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="fs-4 fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph me-2 text-primary"></i>Society Analytics & Financial Reports</h2>
+    <p class="text-muted small mb-0">Comprehensive summary of apartment occupancy, maintenance collections, expenses, and complaints.</p>
+  </div>
+  <button class="btn btn-outline-secondary" (click)="printReport()"><i class="bi bi-printer me-1"></i> Print / Export</button>
+</div>
+
+<div class="row g-3 mb-4">
+  <!-- Occupancy Card -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card p-3 border-0 shadow-sm border-start border-primary border-4">
+      <div class="text-muted small text-uppercase fw-semibold">Occupancy Status</div>
+      <div class="fs-3 fw-bold text-dark mt-1">{{ occupiedFlats }} / {{ totalFlats }}</div>
+      <div class="small text-muted mt-2">
+        <span class="text-success fw-semibold">{{ availableFlats }}</span> available units
+      </div>
+    </div>
+  </div>
+
+  <!-- Collections Card -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card p-3 border-0 shadow-sm border-start border-success border-4">
+      <div class="text-muted small text-uppercase fw-semibold">Total Collections</div>
+      <div class="fs-3 fw-bold text-success mt-1">₹{{ totalCollected }}</div>
+      <div class="small text-muted mt-2">Paid maintenance dues</div>
+    </div>
+  </div>
+
+  <!-- Pending Maintenance -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card p-3 border-0 shadow-sm border-start border-warning border-4">
+      <div class="text-muted small text-uppercase fw-semibold">Outstanding Dues</div>
+      <div class="fs-3 fw-bold text-warning mt-1">₹{{ totalPending }}</div>
+      <div class="small text-muted mt-2">Pending maintenance recovery</div>
+    </div>
+  </div>
+
+  <!-- Expenses Card -->
+  <div class="col-md-6 col-lg-3">
+    <div class="card p-3 border-0 shadow-sm border-start border-danger border-4">
+      <div class="text-muted small text-uppercase fw-semibold">Total Expenses</div>
+      <div class="fs-3 fw-bold text-danger mt-1">₹{{ totalExpenses }}</div>
+      <div class="small text-muted mt-2">Operating costs incurred</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card p-4 shadow-sm border-0">
+      <h5 class="fw-bold mb-3">Financial Performance</h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Gross Collected Revenue</span>
+          <span class="fw-bold text-success">₹{{ totalCollected }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Total Operational Outflow</span>
+          <span class="fw-bold text-danger">- ₹{{ totalExpenses }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+          <span class="fw-bold">Net Society Balance</span>
+          <span class="fw-bold" [ngClass]="(totalCollected - totalExpenses) >= 0 ? 'text-success' : 'text-danger'">
+            ₹{{ totalCollected - totalExpenses }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card p-4 shadow-sm border-0">
+      <h5 class="fw-bold mb-3">Service & Resolution Rate</h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Active Pending Complaints</span>
+          <span class="badge bg-warning text-dark">{{ openComplaints }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Resolved / Closed Grievances</span>
+          <span class="badge bg-success">{{ resolvedComplaints }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+          <span class="fw-bold">Resolution Efficiency</span>
+          <span class="fw-bold text-primary">
+            {{ (openComplaints + resolvedComplaints) > 0 ? ((resolvedComplaints / (openComplaints + resolvedComplaints) * 100).toFixed(0)) + '%' : '100%' }}
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

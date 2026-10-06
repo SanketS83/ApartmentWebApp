@@ -1,0 +1,20 @@
+<div class="res-wrapper">
+  <header class="res-nav">
+    <div class="res-brand"><i class="bi bi-building me-2"></i>Resident Portal</div>
+    <nav class="res-menu">
+      <a routerLink="/resident/dashboard" routerLinkActive="active"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+      <a routerLink="/resident/profile" routerLinkActive="active"><i class="bi bi-person me-1"></i>Profile</a>
+      <a routerLink="/resident/maintenance" routerLinkActive="active"><i class="bi bi-tools me-1"></i>Maintenance</a>
+      <a routerLink="/resident/payments" routerLinkActive="active"><i class="bi bi-credit-card me-1"></i>Payments</a>
+      <a routerLink="/resident/complaints" routerLinkActive="active"><i class="bi bi-exclamation-triangle me-1"></i>Complaints</a>
+      <a routerLink="/resident/visitors" routerLinkActive="active"><i class="bi bi-person-badge me-1"></i>Visitors</a>
+      <a routerLink="/resident/notices" routerLinkActive="active"><i class="bi bi-megaphone me-1"></i>Notices</a>
+      <a routerLink="/resident/events" routerLinkActive="active"><i class="bi bi-calendar-event me-1"></i>Events</a>
+      <a routerLink="/resident/parking" routerLinkActive="active"><i class="bi bi-p-square me-1"></i>Parking</a>
+      <button class="logout-btn" (click)="logout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+    </nav>
+  </header>
+  <main class="res-body">
+    <router-outlet></router-outlet>
+  </main>
+</div>

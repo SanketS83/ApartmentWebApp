@@ -1,0 +1,84 @@
+<h2>Staff & Workers Management</h2>
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit Staff Member' : 'Register New Staff Member' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" [(ngModel)]="currentStaff.name" id="name" placeholder="e.g. Mahesh Shinde">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" [(ngModel)]="currentStaff.phone" id="phone" placeholder="e.g. 9911223344">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="designation" class="form-label">Designation / Role</label>
+            <select class="form-select" [(ngModel)]="currentStaff.designation" id="designation">
+                <option value="Electrician">Electrician</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Housekeeping">Housekeeping</option>
+                <option value="Gardener">Gardener</option>
+                <option value="Lift Mechanic">Lift Mechanic</option>
+                <option value="Supervisor">Supervisor</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="salary" class="form-label">Monthly Salary (₹)</label>
+            <input type="number" class="form-control" [(ngModel)]="currentStaff.salary" id="salary">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="joiningDate" class="form-label">Joining Date</label>
+            <input type="date" class="form-control" [(ngModel)]="currentStaff.joiningDate" id="joiningDate">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="currentStaff.status" id="status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="On Leave">On Leave</option>
+            </select>
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveStaff()">Save</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateStaff()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Name</th>
+        <th>Designation</th>
+        <th>Phone</th>
+        <th>Salary</th>
+        <th>Joining Date</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let s of staffList; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{s.name}}</strong></td>
+        <td><span class="badge bg-secondary">{{s.designation}}</span></td>
+        <td>{{s.phone}}</td>
+        <td>₹{{s.salary}}</td>
+        <td>{{s.joiningDate}}</td>
+        <td><span class="badge" [ngClass]="s.status === 'Active' ? 'bg-success' : 'bg-warning'">{{s.status}}</span></td>
+        <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="editStaff(s)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteStaff(s.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

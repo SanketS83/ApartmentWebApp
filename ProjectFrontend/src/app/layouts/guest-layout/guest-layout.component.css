@@ -1,0 +1,16 @@
+.guest-container { min-height: 100vh; display: flex; flex-direction: column; background: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.guest-nav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 3rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.nav-brand { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+.nav-brand .icon { font-size: 2rem; }
+.brand-info h2 { margin: 0; font-size: 1.3rem; font-weight: 800; color: #0f172a; }
+.brand-info p { margin: 0; font-size: 0.78rem; color: #64748b; font-weight: 500; }
+.nav-buttons { display: flex; gap: 0.85rem; align-items: center; }
+.btn { padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-resident { background: #2563eb; color: white; box-shadow: 0 2px 6px rgba(37,99,235,0.25); }
+.btn-resident:hover { background: #1d4ed8; transform: translateY(-1px); }
+.btn-guard { background: #0f172a; color: white; box-shadow: 0 2px 6px rgba(15,23,42,0.25); }
+.btn-guard:hover { background: #1e293b; transform: translateY(-1px); }
+.guest-main { flex: 1; display: flex; flex-direction: column; }
+.shortcut-tooltip { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 40; background: rgba(15,23,42,0.9); color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.45rem 0.85rem; font-size: 0.78rem; display: flex; align-items: center; gap: 0.5rem; }
+.shortcut-tooltip .key { background: #334155; color: #f8fafc; padding: 0.15rem 0.45rem; border-radius: 4px; font-family: monospace; font-weight: bold; }
+.guest-footer { text-align: center; padding: 1.25rem; background: #0f172a; color: #94a3b8; font-size: 0.85rem; }

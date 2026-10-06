@@ -1,0 +1,18 @@
+.card { background: white; border-radius: 12px; padding: 1.75rem; border: 1px solid #e2e8f0; margin-bottom: 1.5rem; }
+.head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.head h2 { margin: 0; font-size: 1.5rem; color: #0f172a; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.85rem 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; text-align: left; }
+th { background: #f8fafc; color: #475569; text-transform: uppercase; font-size: 0.8rem; }
+.btn-action { background: #2563eb; color: white; border: none; padding: 0.55rem 1.1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-del { background: #fee2e2; color: #991b1b; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; }
+.badge { padding: 0.2rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.badge-active { background: #dcfce7; color: #166534; }
+.modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:100; }
+.modal-content { background:white; border-radius:12px; padding:2rem; width:100%; max-width:480px; }
+.field { margin-bottom: 1rem; }
+.field label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.3rem; }
+.field input, .field select, .field textarea { width:100%; padding:0.6rem; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; }
+.modal-actions { display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.25rem; }
+.btn-cancel { background:#e2e8f0; border:none; padding:0.5rem 1rem; border-radius:6px; cursor:pointer; }

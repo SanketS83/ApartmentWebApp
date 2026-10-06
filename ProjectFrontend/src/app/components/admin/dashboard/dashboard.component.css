@@ -1,0 +1,6 @@
+.card { background: white; border-radius: 12px; padding: 1.75rem; border: 1px solid #e2e8f0; }
+h2 { margin: 0 0 1.5rem 0; color: #0f172a; font-size: 1.5rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.stat-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; }
+.stat-box h4 { margin: 0; color: #64748b; font-size: 0.85rem; }
+.stat-box .val { font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-top: 0.35rem; }

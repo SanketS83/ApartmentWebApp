@@ -1,0 +1,31 @@
+<div class="guest-container">
+  <header class="guest-nav">
+    <div class="nav-brand" routerLink="/">
+      <span class="icon"><i class="bi bi-buildings"></i></span>
+      <div class="brand-info">
+        <h2>Solstice Heights</h2>
+        <p>Smart Apartment Society</p>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-resident" (click)="goToResidentLogin()">
+        <i class="bi bi-house-door me-1"></i> Resident Login
+      </button>
+      <button class="btn btn-guard" (click)="goToGuardLogin()">
+        <i class="bi bi-shield-lock me-1"></i> Guard Login
+      </button>
+    </div>
+  </header>
+
+  <main class="guest-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <div class="shortcut-tooltip" title="Press Alt + A to access Society Admin Portal">
+    <span class="key">Alt + A</span> Admin Gateway
+  </div>
+
+  <footer class="guest-footer">
+    <p>&copy; 2026 Solstice Heights Apartment Society. All rights reserved.</p>
+  </footer>
+</div>

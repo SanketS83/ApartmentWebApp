@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <div class="login-box shadow p-4 rounded bg-white">
+    <div class="text-center mb-3">
+      <i class="bi fs-1 text-primary" [class.bi-building]="selectedRole === 'RESIDENT'" [class.bi-shield-check]="selectedRole === 'GUARD'"></i>
+    </div>
+    <h2 class="text-center mb-3 fs-4 fw-bold">{{ selectedRole === 'RESIDENT' ? 'Resident Login' : 'Security Guard Login' }}</h2>
+    <div class="role-tabs d-flex mb-3">
+      <button type="button" class="btn w-50" [class.btn-primary]="selectedRole === 'RESIDENT'" [class.btn-outline-primary]="selectedRole !== 'RESIDENT'" (click)="setRole('RESIDENT')">Resident</button>
+      <button type="button" class="btn w-50 ms-2" [class.btn-primary]="selectedRole === 'GUARD'" [class.btn-outline-primary]="selectedRole !== 'GUARD'" (click)="setRole('GUARD')">Guard</button>
+    </div>
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">{{ selectedRole === 'RESIDENT' ? 'Registered Email' : 'Username' }}</label>
+        <input type="text" class="form-control" [(ngModel)]="username" name="u" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Password</label>
+        <input type="password" class="form-control" [(ngModel)]="password" name="p" required />
+      </div>
+      <div class="d-flex justify-content-end mb-3" *ngIf="selectedRole === 'RESIDENT'">
+        <a routerLink="/forgot-password" class="text-decoration-none small">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" [disabled]="isLoading">{{ isLoading ? 'Signing In...' : 'Sign In' }}</button>
+    </form>
+  </div>
+</div>

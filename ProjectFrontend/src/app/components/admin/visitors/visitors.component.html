@@ -1,0 +1,86 @@
+
+<div class="card p-3 shadow-sm mb-4">
+    <h4>{{ isEdit ? 'Edit Visitor Record' : 'Log New Visitor Entry' }}</h4>
+
+    <div class="alert alert-success" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <label for="visitorName" class="form-label">Visitor Name</label>
+            <input type="text" class="form-control" [(ngModel)]="currentVisitor.visitorName" id="visitorName" placeholder="Full Name">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="phone" class="form-label">Contact Number</label>
+            <input type="text" class="form-control" [(ngModel)]="currentVisitor.phone" id="phone" placeholder="9876543210">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="residentId" class="form-label">Visiting Resident</label>
+            <select class="form-select" [(ngModel)]="currentVisitor.residentId" id="residentId">
+                <option *ngFor="let r of residents" [ngValue]="r.id">{{r.name}} ({{r.flat?.building}} - {{r.flat?.flatNumber}})</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="purpose" class="form-label">Purpose of Visit</label>
+            <input type="text" class="form-control" [(ngModel)]="currentVisitor.purpose" id="purpose" placeholder="e.g. Delivery, Guest, Service">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="visitDate" class="form-label">Visit Date</label>
+            <input type="date" class="form-control" [(ngModel)]="currentVisitor.visitDate" id="visitDate">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label for="checkInTime" class="form-label">Check-In Date & Time</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="currentVisitor.checkInTime" id="checkInTime">
+        </div>
+
+        <div class="col-12 mt-2">
+            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveVisitor()">Save Entry</button>
+            <button class="btn btn-success" *ngIf="isEdit" (click)="updateVisitor()">Update</button>
+            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+<table class="table table-bordered shadow-sm">
+  <thead>
+    <tr>
+        <th>SrNo</th>
+        <th>Visitor Name</th>
+        <th>Phone</th>
+        <th>Visiting Resident</th>
+        <th>Purpose</th>
+        <th>Check-In (Date & Time)</th>
+        <th>Check-Out (Date & Time)</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+     <tr *ngFor="let v of visitors; let srNo = index">
+        <td>{{srNo+1}}</td>
+        <td><strong>{{v.visitorName}}</strong></td>
+        <td>{{v.phone}}</td>
+        <td>{{v.resident?.name || 'Resident'}} ({{v.resident?.flat?.flatNumber || ''}})</td>
+        <td>{{v.purpose}}</td>
+        <td><span class="badge bg-light text-dark border"><i class="bi bi-box-arrow-in-right text-success me-1"></i>{{v.checkInTime || v.visitDate}}</span></td>
+        <td>
+            <span *ngIf="v.checkOutTime" class="badge bg-light text-dark border"><i class="bi bi-box-arrow-right text-danger me-1"></i>{{v.checkOutTime}}</span>
+            <span *ngIf="!v.checkOutTime" class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i>Inside Campus</span>
+        </td>
+        <td>
+            <span class="badge" [ngClass]="v.status === 'Checked Out' ? 'bg-secondary' : 'bg-success'">
+                {{v.status || (v.checkOutTime ? 'Checked Out' : 'Checked In')}}
+            </span>
+        </td>
+        <td>
+            <button class="btn btn-sm btn-outline-success me-1" *ngIf="v.status !== 'Checked Out' && !v.checkOutTime" (click)="checkOutVisitor(v.id!)">
+                <i class="bi bi-box-arrow-right"></i> Check Out
+            </button>
+            <button class="btn btn-sm btn-warning me-1" (click)="editVisitor(v)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteVisitor(v.id!)">Delete</button>
+        </td>
+     </tr>
+  </tbody>
+</table>
+</div>

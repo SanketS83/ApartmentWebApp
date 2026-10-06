@@ -1,0 +1,119 @@
+<div class="container-fluid px-0">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fs-3 fw-bold mb-1"><i class="bi bi-person-gear me-2 text-primary"></i>My Resident Profile</h2>
+      <p class="text-muted mb-0">View and update your personal contact details, email, and security password.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Editable Form -->
+    <div class="col-lg-8">
+      <div class="card p-4 shadow-sm border-0">
+        <h4 class="fs-5 fw-bold mb-3 border-bottom pb-2">Edit Personal Information</h4>
+
+        <div class="alert alert-success d-flex align-items-center" *ngIf="success">
+          <i class="bi bi-check-circle-fill me-2 fs-5"></i> {{ success }}
+        </div>
+        <div class="alert alert-danger d-flex align-items-center" *ngIf="error">
+          <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> {{ error }}
+        </div>
+
+        <form (ngSubmit)="updateProfile()" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Full Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input type="text" class="form-control" [(ngModel)]="editData.name" name="name" required placeholder="Your full name" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Email Address (Login Username)</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+              <input type="email" class="form-control" [(ngModel)]="editData.email" name="email" required placeholder="your.email@example.com" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Phone Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+              <input type="tel" class="form-control" [(ngModel)]="editData.phone" name="phone" placeholder="10-digit mobile number" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-key"></i></span>
+              <input [type]="showPassword ? 'text' : 'password'" class="form-control" [(ngModel)]="editData.password" name="password" placeholder="Change password" />
+              <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()">
+                <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+            <div class="form-text small">Stored securely in plain text as configured.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold">Permanent / Correspondence Address</label>
+            <textarea class="form-control" [(ngModel)]="editData.address" name="address" rows="3" placeholder="Enter your full residential address..."></textarea>
+          </div>
+
+          <div class="col-12 mt-4 pt-2 border-top d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold" [disabled]="isLoading">
+              <i class="bi bi-save me-1"></i> {{ isLoading ? 'Saving Changes...' : 'Save Profile Changes' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary px-3 py-2" (click)="loadProfile()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Column: Flat & Membership Summary (Read-Only) -->
+    <div class="col-lg-4">
+      <div class="card p-4 shadow-sm border-0 mb-4 bg-light">
+        <h4 class="fs-5 fw-bold mb-3 border-bottom pb-2">Allocated Flat Details</h4>
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-primary text-white p-3 rounded-circle me-3">
+            <i class="bi bi-building fs-3"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-0">{{ res?.flat?.building }} - {{ res?.flat?.flatNumber }}</h5>
+            <span class="badge bg-primary">{{ res?.flat?.flatType || 'Apartment Unit' }}</span>
+          </div>
+        </div>
+
+        <ul class="list-group list-group-flush rounded border">
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+            <span class="text-muted">Building / Tower</span>
+            <span class="fw-semibold">{{ res?.flat?.building || 'Main Tower' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+            <span class="text-muted">Floor Level</span>
+            <span class="fw-semibold">{{ res?.flat?.floor }}th Floor</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+            <span class="text-muted">Unit Carpet Area</span>
+            <span class="fw-semibold">{{ res?.flat?.area }} sq.ft</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+            <span class="text-muted">Membership Status</span>
+            <span class="badge bg-info text-dark">{{ res?.memberType || 'Resident' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center bg-white">
+            <span class="text-muted">Account Status</span>
+            <span class="badge bg-success">Active Member</span>
+          </li>
+        </ul>
+
+        <div class="alert alert-info mt-3 mb-0 small">
+          <i class="bi bi-info-circle me-1"></i> Flat allocation and membership type are managed by the Society Admin.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
