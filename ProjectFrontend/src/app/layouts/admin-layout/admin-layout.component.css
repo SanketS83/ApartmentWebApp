@@ -15,41 +15,42 @@
   background-color: #f8fafc;
 }
 
-/* Sidebar Container - FIXED, doesn't scroll with content */
+/* Sidebar Container - FIXED, does not scroll with main page */
 .admin-sidebar {
-  width: 255px;
-  min-width: 255px;
-  max-width: 255px;
+  width: 250px;
+  min-width: 250px;
+  max-width: 250px;
   height: 100vh;
   max-height: 100vh;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 3px 0 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 3px 0 16px rgba(0, 0, 0, 0.15);
   z-index: 1020;
   background: #111827 !important;
+  padding: 12px 10px !important;
 }
 
 .sidebar-brand {
-  font-size: 1.15rem;
-  letter-spacing: 0.3px;
   flex-shrink: 0;
+  letter-spacing: 0.3px;
 }
 
 /* Scrollable Menu Items inside sidebar */
 .sidebar-menu {
   flex: 1 1 0%;
   min-height: 0;
-  overflow-y: auto;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
-  gap: 2px;
-  padding-right: 4px;
+  padding-right: 2px;
+  margin: 0;
+  list-style: none;
 }
 
-/* Clearly visible sleek scrollbar for sidebar menu */
+/* Clearly visible styled scrollbar for sidebar menu */
 .sidebar-menu::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .sidebar-menu::-webkit-scrollbar-track {
@@ -58,12 +59,12 @@
 }
 
 .sidebar-menu::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
 
 .sidebar-menu::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: #3b82f6;
 }
 
 .sidebar-menu .nav-item {
@@ -72,9 +73,11 @@
 
 .sidebar-menu .nav-link {
   border-radius: 6px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   font-weight: 500;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  margin-bottom: 2px;
   color: #9ca3af !important;
   display: flex;
   align-items: center;
@@ -85,8 +88,8 @@
 }
 
 .sidebar-menu .nav-link i {
-  font-size: 1.05rem;
-  width: 22px;
+  font-size: 0.95rem;
+  width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -94,19 +97,20 @@
 .sidebar-menu .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.08);
   color: #ffffff !important;
-  padding-left: 15px;
+  padding-left: 13px;
 }
 
 .sidebar-menu .nav-link.active {
   background-color: #2563eb !important;
   color: #ffffff !important;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-  padding-left: 14px;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  padding-left: 12px;
 }
 
 .sidebar-footer {
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 /* Main Content Area - FIXED height, no window scroll */
@@ -139,7 +143,7 @@
   max-width: 100%;
 }
 
-/* Custom scrollbar for admin-content */
+/* Clean scrollbar for admin-content */
 .admin-content::-webkit-scrollbar {
   width: 8px;
 }
