@@ -34,4 +34,33 @@ export class PaymentService {
   deletePayment(id: number): Observable<void> {
     return this.api.delete<void>(this.endpoint + '/' + id);
   }
+
+  // --- Stripe Gateway ---
+  createStripeSession(maintenanceId: number): Observable<{ url: string; sessionId: string }> {
+    return this.api.post<{ url: string; sessionId: string }>(`${this.endpoint}/stripe/create-session/${maintenanceId}`, {});
+  }
+
+  confirmPayment(sessionId: string): Observable<any> {
+    return this.api.post<any>(`${this.endpoint}/stripe/confirm?sessionId=${encodeURIComponent(sessionId)}`, {});
+  }
+
+  // --- Cash Payment Workflow ---
+  recordCashPayment(data: { maintenanceId: number; residentId?: number; remarks?: string }): Observable<Payment> {
+    return this.api.post<Payment>(`${this.endpoint}/cash/record`, data);
+  }
+
+  approveCashPayment(paymentId: number): Observable<Payment> {
+    return this.api.post<Payment>(`${this.endpoint}/${paymentId}/approve-cash`, {});
+  }
+
+  rejectCashPayment(paymentId: number, reason?: string): Observable<Payment> {
+    const url = reason 
+      ? `${this.endpoint}/${paymentId}/reject-cash?reason=${encodeURIComponent(reason)}` 
+      : `${this.endpoint}/${paymentId}/reject-cash`;
+    return this.api.post<Payment>(url, {});
+  }
+
+  approveMaintenanceCash(maintenanceId: number): Observable<Payment> {
+    return this.api.post<Payment>(`${this.endpoint}/maintenance/${maintenanceId}/approve-cash`, {});
+  }
 }

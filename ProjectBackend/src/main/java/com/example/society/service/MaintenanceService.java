@@ -10,6 +10,7 @@ import com.example.society.repository.FlatRepository;
 import com.example.society.repository.ResidentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -42,16 +43,27 @@ public class MaintenanceService {
     public Maintenance createMaintenance(MaintenanceDto dto) {
         Flat flat = flatRepository.findById(dto.getFlatId())
                 .orElseThrow(() -> new ResourceNotFoundException("Flat not found with id: " + dto.getFlatId()));
-        Resident resident = residentRepository.findById(dto.getResidentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Resident not found with id: " + dto.getResidentId()));
+
+        Resident resident = null;
+        if (dto.getResidentId() != null) {
+            resident = residentRepository.findById(dto.getResidentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Resident not found with id: " + dto.getResidentId()));
+        } else {
+            List<Resident> residentsInFlat = residentRepository.findByFlatId(flat.getId());
+            if (!residentsInFlat.isEmpty()) {
+                resident = residentsInFlat.get(0);
+            } else {
+                throw new IllegalArgumentException("No resident is currently assigned to Flat " + flat.getBuilding() + " - " + flat.getFlatNumber() + ". Please allocate a resident first.");
+            }
+        }
 
         Maintenance maintenance = new Maintenance();
         maintenance.setFlat(flat);
         maintenance.setResident(resident);
-        maintenance.setMonth(dto.getMonth());
-        maintenance.setYear(dto.getYear());
+        maintenance.setMonth(dto.getMonth() != null ? String.valueOf(dto.getMonth()) : "1");
+        maintenance.setYear(dto.getYear() != null ? dto.getYear() : LocalDate.now().getYear());
         maintenance.setAmount(dto.getAmount());
-        maintenance.setDueDate(dto.getDueDate());
+        maintenance.setDueDate(dto.getDueDate() != null ? dto.getDueDate() : LocalDate.now().plusDays(15));
         maintenance.setStatus(dto.getStatus() != null ? dto.getStatus() : "Pending");
 
         return maintenanceRepository.save(maintenance);

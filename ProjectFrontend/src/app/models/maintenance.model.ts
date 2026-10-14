@@ -7,7 +7,7 @@ export interface Maintenance {
   flatId?: number;
   resident?: Resident;
   residentId?: number;
-  month: number;
+  month: string | number;
   year: number;
   amount: number;
   dueDate: string;

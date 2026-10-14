@@ -9,7 +9,13 @@ export interface Payment {
   residentId?: number;
   amount: number;
   paymentDate?: string;
+  paymentTime?: string;
   paymentMode: string;
+  paymentMethod?: string;
   transactionId?: string;
+  transactionRef?: string;
+  totalAmount?: number;
+  netAmount?: number;
   status?: string;
+  remarks?: string;
 }

@@ -1,1 +1,206 @@
-<div class="card"><h2>My Maintenance Dues</h2><div class="table-wrap"><table><thead><tr><th>Month/Year</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead><tbody><tr *ngFor="let b of bills"><td>{{ b.month }}/{{ b.year }}</td><td>Rs. {{ b.amount }}</td><td>{{ b.dueDate }}</td><td>{{ b.status }}</td></tr></tbody></table></div></div>
+<div class="card p-4 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="fw-bold mb-1">🏢 My Maintenance Dues</h3>
+      <p class="text-muted mb-0">View monthly society dues and pay online or via cash</p>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" (click)="loadBills()">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div *ngIf="!isLoading && bills.length === 0" class="text-center py-5">
+    <div class="fs-1 mb-2">📑</div>
+    <h5>No Maintenance Bills Found</h5>
+    <p class="text-muted">You have no pending or past maintenance dues registered.</p>
+  </div>
+
+  <!-- LOADING STATE -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Loading your maintenance records...</p>
+  </div>
+
+  <!-- BILLS TABLE -->
+  <div *ngIf="!isLoading && bills.length > 0" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Sr.</th>
+          <th>Period (Month/Year)</th>
+          <th>Flat</th>
+          <th>Amount</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th class="text-center">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of bills; let idx = index">
+          <td>{{ idx + 1 }}</td>
+          <td>
+            <strong>{{ b.month }} {{ b.year }}</strong>
+          </td>
+          <td>
+            {{ b.flat?.building }} - {{ b.flat?.flatNumber }}
+          </td>
+          <td class="fw-bold text-dark fs-6">
+            ₹{{ b.amount }}
+          </td>
+          <td>
+            <span class="text-muted">{{ b.dueDate }}</span>
+          </td>
+          <td>
+            <span 
+              class="badge px-3 py-2"
+              [ngClass]="{
+                'bg-success': b.status === 'Paid',
+                'bg-info text-dark': b.status === 'Pending Cash Approval',
+                'bg-warning text-dark': b.status === 'Pending',
+                'bg-danger': b.status === 'Overdue'
+              }"
+            >
+              {{ b.status }}
+            </span>
+          </td>
+          <td class="text-center">
+            <!-- PAY BUTTON FOR PENDING OR OVERDUE -->
+            <button 
+              *ngIf="b.status === 'Pending' || b.status === 'Overdue'" 
+              class="btn btn-primary btn-sm px-3"
+              (click)="openPayModal(b)"
+            >
+              💳 Pay Now
+            </button>
+
+            <!-- CASH APPROVAL PENDING NOTICE -->
+            <div *ngIf="b.status === 'Pending Cash Approval'" class="text-info small fw-bold">
+              ⏳ Awaiting Admin Approval
+            </div>
+
+            <!-- PAID BADGE -->
+            <span *ngIf="b.status === 'Paid'" class="text-success small fw-bold">
+              ✓ Settled
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- PAYMENT MODAL (ONLINE & CASH)                 -->
+<!-- ============================================== -->
+<div class="modal-backdrop fade show" *ngIf="isPayModalOpen" (click)="closePayModal()"></div>
+
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isPayModalOpen">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0 rounded-4">
+      
+      <div class="modal-header bg-light border-0 pb-0">
+        <h5 class="modal-title fw-bold">Pay Maintenance Invoice</h5>
+        <button type="button" class="btn-close" (click)="closePayModal()"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Invoice Details Summary Card -->
+        <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Billing Period:</span>
+            <strong>{{ selectedBill?.month }} {{ selectedBill?.year }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Flat:</span>
+            <span>{{ selectedBill?.flat?.building }} - {{ selectedBill?.flat?.flatNumber }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Due Date:</span>
+            <span>{{ selectedBill?.dueDate }}</span>
+          </div>
+          <hr class="my-2" />
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Total Payable:</span>
+            <span class="fw-bold fs-4 text-primary">₹{{ selectedBill?.amount }}</span>
+          </div>
+        </div>
+
+        <!-- PAYMENT METHOD SELECTION -->
+        <label class="form-label fw-bold mb-2">Select Payment Method:</label>
+
+        <div class="row g-3 mb-4">
+          <!-- ONLINE OPTION -->
+          <div class="col-6">
+            <div 
+              class="payment-option-card p-3 rounded-3 text-center border cursor-pointer h-100"
+              [class.selected]="paymentMethod === 'ONLINE'"
+              (click)="paymentMethod = 'ONLINE'"
+            >
+              <div class="fs-2 mb-1">💳</div>
+              <div class="fw-bold">Online Payment</div>
+              <small class="text-muted d-block">Stripe / Card / UPI</small>
+            </div>
+          </div>
+
+          <!-- CASH OPTION -->
+          <div class="col-6">
+            <div 
+              class="payment-option-card p-3 rounded-3 text-center border cursor-pointer h-100"
+              [class.selected]="paymentMethod === 'CASH'"
+              (click)="paymentMethod = 'CASH'"
+            >
+              <div class="fs-2 mb-1">💵</div>
+              <div class="fw-bold">Cash Payment</div>
+              <small class="text-muted d-block">Admin Approval</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- METHOD DETAILS: ONLINE -->
+        <div *ngIf="paymentMethod === 'ONLINE'" class="method-info p-3 rounded bg-primary-subtle border border-primary-subtle mb-3">
+          <div class="fw-bold text-primary mb-1">Stripe Secure Gateway</div>
+          <p class="small text-muted mb-0">
+            You will be safely redirected to the Stripe Checkout gateway to complete payment using Credit Card, Debit Card, or Net Banking. Once paid, your invoice status updates to <strong>Paid</strong> instantly.
+          </p>
+        </div>
+
+        <!-- METHOD DETAILS: CASH -->
+        <div *ngIf="paymentMethod === 'CASH'" class="method-info p-3 rounded bg-warning-subtle border border-warning-subtle mb-3">
+          <div class="fw-bold text-dark mb-1">Cash Payment Notice</div>
+          <p class="small text-muted mb-2">
+            Please deposit the cash amount of <strong>₹{{ selectedBill?.amount }}</strong> at the Society Office. The Admin will manually verify the payment and approve your receipt.
+          </p>
+          <div>
+            <label class="form-label small fw-semibold text-secondary">Note / Receipt Reference (Optional):</label>
+            <input 
+              type="text" 
+              class="form-control form-control-sm" 
+              placeholder="e.g. Handed to Mr. Sharma at office"
+              [(ngModel)]="cashRemarks"
+            />
+          </div>
+        </div>
+
+        <!-- ACTION BUTTON -->
+        <button 
+          class="btn btn-primary w-100 py-2 fw-bold"
+          (click)="processPayment()"
+          [disabled]="isProcessing"
+        >
+          <span *ngIf="!isProcessing && paymentMethod === 'ONLINE'">
+            Proceed to Stripe Payment (₹{{ selectedBill?.amount }}) &rarr;
+          </span>
+          <span *ngIf="!isProcessing && paymentMethod === 'CASH'">
+            Submit Cash Payment for Admin Approval &rarr;
+          </span>
+          <span *ngIf="isProcessing">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Processing...
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>

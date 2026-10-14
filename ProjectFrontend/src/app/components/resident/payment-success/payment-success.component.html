@@ -1,0 +1,67 @@
+<div class="payment-result-wrap">
+  <div class="card shadow-lg p-4 result-card text-center">
+    
+    <!-- LOADING STATE -->
+    <div *ngIf="isLoading" class="py-5">
+      <div class="spinner-border text-primary mb-3" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
+      <h4 class="fw-bold">Verifying Payment...</h4>
+      <p class="text-muted">Please wait while we confirm your Stripe transaction.</p>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div *ngIf="!isLoading && isSuccess" class="py-3">
+      <div class="success-checkmark mb-3">
+        <span class="icon-check">✓</span>
+      </div>
+      <h3 class="fw-bold text-success mb-1">Payment Successful!</h3>
+      <p class="text-muted mb-4">Your maintenance payment has been verified and recorded.</p>
+
+      <div class="receipt-box text-start p-3 mb-4 rounded bg-light border">
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Transaction ID:</span>
+          <span class="fw-bold font-monospace">{{ paymentDetails?.transactionId || paymentDetails?.transactionRef || sessionId }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Amount Paid:</span>
+          <span class="fw-bold text-success fs-5">₹{{ paymentDetails?.amount || paymentDetails?.totalAmount || 'Paid' }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+          <span class="text-muted">Payment Mode:</span>
+          <span class="badge bg-primary">{{ paymentDetails?.paymentMethod || 'Online / Stripe' }}</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Status:</span>
+          <span class="badge bg-success">PAID</span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-3">
+        <a routerLink="/resident/maintenance" class="btn btn-primary px-4 py-2">
+          View Maintenance Bills
+        </a>
+        <a routerLink="/resident/payments" class="btn btn-outline-secondary px-4 py-2">
+          Payment Receipts
+        </a>
+      </div>
+    </div>
+
+    <!-- FAILED STATE -->
+    <div *ngIf="!isLoading && !isSuccess" class="py-3">
+      <div class="failed-icon mb-3">
+        <span class="icon-cross">✕</span>
+      </div>
+      <h3 class="fw-bold text-danger mb-1">Payment Verification Failed</h3>
+      <p class="text-muted mb-4">{{ errorMessage }}</p>
+
+      <div class="d-flex justify-content-center gap-3">
+        <a routerLink="/resident/maintenance" class="btn btn-danger px-4 py-2">
+          Return to Maintenance
+        </a>
+        <a routerLink="/resident/dashboard" class="btn btn-outline-secondary px-4 py-2">
+          Dashboard
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>

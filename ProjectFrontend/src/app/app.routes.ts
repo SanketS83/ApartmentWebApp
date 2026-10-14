@@ -67,7 +67,13 @@ export const routes: Routes = [
       { path: 'notices', loadComponent: () => import('./components/resident/notices/notices.component').then(m => m.NoticesComponent) },
       { path: 'events', loadComponent: () => import('./components/resident/events/events.component').then(m => m.EventsComponent) },
       { path: 'parking', loadComponent: () => import('./components/resident/parking/parking.component').then(m => m.ParkingComponent) },
+      { path: 'payment-success', loadComponent: () => import('./components/resident/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent) },
     ]
+  },
+
+  {
+    path: 'payment-success',
+    loadComponent: () => import('./components/resident/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent)
   },
 
   // 5. Guard Panel (Protected by guardAuthGuard)

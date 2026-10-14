@@ -1,1 +1,73 @@
-<div class="card"><h2>Payment History & Receipts</h2><div class="table-wrap"><table><thead><tr><th>Date</th><th>Amount</th><th>Mode</th><th>Txn ID</th><th>Status</th></tr></thead><tbody><tr *ngFor="let p of payments"><td>{{ p.paymentDate }}</td><td>Rs. {{ p.amount }}</td><td>{{ p.paymentMode }}</td><td>{{ p.transactionId }}</td><td>{{ p.status }}</td></tr></tbody></table></div></div>
+<div class="card p-4 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h3 class="fw-bold mb-1">🧾 My Payment History</h3>
+      <p class="text-muted mb-0">Track all your cash and online maintenance payments & receipts</p>
+    </div>
+    <button class="btn btn-outline-primary btn-sm" (click)="loadPayments()">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <div *ngIf="payments.length === 0" class="text-center py-5">
+    <div class="fs-1 mb-2">💳</div>
+    <h5>No Payment Records Yet</h5>
+    <p class="text-muted">Once you pay your maintenance fees, receipts will be listed here.</p>
+  </div>
+
+  <div *ngIf="payments.length > 0" class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Sr.</th>
+          <th>Date</th>
+          <th>Maintenance</th>
+          <th>Amount</th>
+          <th>Mode / Gateway</th>
+          <th>Transaction Reference</th>
+          <th>Remarks / Notes</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of payments; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ p.paymentDate }}</td>
+          <td>
+            <strong>Invoice #{{ p.maintenance?.id || p.maintenanceId }}</strong>
+            <div class="small text-muted" *ngIf="p.maintenance">
+              {{ p.maintenance.month }} {{ p.maintenance.year }}
+            </div>
+          </td>
+          <td class="fw-bold text-dark fs-6">
+            ₹{{ p.amount }}
+          </td>
+          <td>
+            <span class="badge" [ngClass]="p.paymentMode === 'Cash' ? 'bg-secondary' : 'bg-primary'">
+              {{ p.paymentMethod || p.paymentMode }}
+            </span>
+          </td>
+          <td>
+            <code class="font-monospace small">{{ p.transactionId || p.transactionRef }}</code>
+          </td>
+          <td class="small text-muted">
+            {{ p.remarks || '-' }}
+          </td>
+          <td>
+            <span 
+              class="badge px-3 py-2"
+              [ngClass]="{
+                'bg-success': p.status === 'SUCCESS' || p.status === 'Successful' || p.status === 'Paid',
+                'bg-info text-dark': p.status === 'Pending Approval' || p.status === 'PENDING_APPROVAL',
+                'bg-warning text-dark': p.status === 'Pending' || p.status === 'PENDING',
+                'bg-danger': p.status === 'FAILED' || p.status === 'Failed' || p.status === 'REJECTED'
+              }"
+            >
+              {{ p.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

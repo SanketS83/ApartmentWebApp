@@ -19,8 +19,8 @@ public class Maintenance {
     @JoinColumn(name = "resident_id", nullable = false)
     private Resident resident;
 
-    @Column(nullable = false)
-    private Integer month;
+    @Column(nullable = false, length = 30)
+    private String month;
 
     @Column(nullable = false)
     private Integer year;
@@ -31,7 +31,7 @@ public class Maintenance {
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 30, nullable = false)
     private String status = "Pending";
 
     public Maintenance() { }
@@ -42,8 +42,8 @@ public class Maintenance {
     public void setFlat(Flat flat) { this.flat = flat; }
     public Resident getResident() { return resident; }
     public void setResident(Resident resident) { this.resident = resident; }
-    public Integer getMonth() { return month; }
-    public void setMonth(Integer month) { this.month = month; }
+    public String getMonth() { return month; }
+    public void setMonth(String month) { this.month = month; }
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }
     public BigDecimal getAmount() { return amount; }

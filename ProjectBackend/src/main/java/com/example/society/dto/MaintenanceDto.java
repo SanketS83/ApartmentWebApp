@@ -9,7 +9,7 @@ public class MaintenanceDto {
     private String flatDetails;
     private Long residentId;
     private String residentName;
-    private Integer month;
+    private String month;
     private Integer year;
     private BigDecimal amount;
     private LocalDate dueDate;
@@ -27,8 +27,9 @@ public class MaintenanceDto {
     public void setResidentId(Long residentId) { this.residentId = residentId; }
     public String getResidentName() { return residentName; }
     public void setResidentName(String residentName) { this.residentName = residentName; }
-    public Integer getMonth() { return month; }
-    public void setMonth(Integer month) { this.month = month; }
+    public String getMonth() { return month; }
+    public void setMonth(String month) { this.month = month; }
+    public void setMonth(Integer month) { this.month = month != null ? String.valueOf(month) : null; }
     public Integer getYear() { return year; }
     public void setYear(Integer year) { this.year = year; }
     public BigDecimal getAmount() { return amount; }

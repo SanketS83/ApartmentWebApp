@@ -17,7 +17,14 @@ export class PaymentsComponent implements OnInit {
   isEdit = false;
   success = '';
   error = '';
-  currentPayment: any = { maintenanceId: 1, transactionId: '', amount: 2500, paymentMode: 'UPI', paymentDate: new Date().toISOString().substring(0, 10), status: 'Successful' };
+  currentPayment: any = { 
+    maintenanceId: 1, 
+    transactionId: '', 
+    amount: 2500, 
+    paymentMode: 'Cash', 
+    paymentDate: new Date().toISOString().substring(0, 10), 
+    status: 'SUCCESS' 
+  };
 
   constructor(private ps: PaymentService) {}
 
@@ -42,7 +49,7 @@ export class PaymentsComponent implements OnInit {
         this.resetForm();
         this.loadPayments();
       },
-      error: () => this.error = 'Failed to save payment.'
+      error: (err) => this.error = err?.error?.message || 'Failed to save payment.'
     });
   }
 
@@ -54,7 +61,15 @@ export class PaymentsComponent implements OnInit {
   }
 
   updatePayment(): void {
-    this.savePayment();
+    if (!this.currentPayment.id) return;
+    this.ps.updatePayment(this.currentPayment.id, this.currentPayment).subscribe({
+      next: () => {
+        this.success = 'Payment record updated successfully!';
+        this.resetForm();
+        this.loadPayments();
+      },
+      error: (err) => this.error = err?.error?.message || 'Failed to update payment.'
+    });
   }
 
   deletePayment(id: number): void {
@@ -78,9 +93,90 @@ export class PaymentsComponent implements OnInit {
     });
   }
 
+  // --- APPROVE CASH PAYMENT ---
+  approveCash(p: Payment): void {
+    Swal.fire({
+      title: 'Approve Cash Payment?',
+      html: `
+        <div class="text-start">
+          <p>Verify that cash payment of <strong>₹${p.amount}</strong> for Maintenance Invoice #<strong>${p.maintenance?.id || p.maintenanceId}</strong> has been received.</p>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Approve Cash',
+      confirmButtonColor: '#198754'
+    }).then((res) => {
+      if (res.isConfirmed) {
+        this.ps.approveCashPayment(p.id!).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Cash Payment Approved!',
+              text: 'The payment has been marked as SUCCESS and maintenance as Paid.',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            this.loadPayments();
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Approval Failed',
+              text: err?.error?.message || 'Could not approve cash payment'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  // --- REJECT CASH PAYMENT ---
+  rejectCash(p: Payment): void {
+    Swal.fire({
+      title: 'Reject Cash Payment?',
+      input: 'text',
+      inputLabel: 'Reason for rejection',
+      inputPlaceholder: 'e.g. Cash not handed in',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Reject Payment',
+      confirmButtonColor: '#dc3545'
+    }).then((res) => {
+      if (res.isConfirmed) {
+        this.ps.rejectCashPayment(p.id!, res.value || '').subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'info',
+              title: 'Cash Payment Rejected',
+              text: 'The payment status is now REJECTED and maintenance reverted to Pending.',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            this.loadPayments();
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Rejection Failed',
+              text: err?.error?.message || 'Could not reject cash payment'
+            });
+          }
+        });
+      }
+    });
+  }
+
   resetForm(): void {
     this.isEdit = false;
-    this.currentPayment = { maintenanceId: 1, transactionId: '', amount: 2500, paymentMode: 'UPI', paymentDate: new Date().toISOString().substring(0, 10), status: 'Successful' };
+    this.currentPayment = { 
+      maintenanceId: 1, 
+      transactionId: '', 
+      amount: 2500, 
+      paymentMode: 'Cash', 
+      paymentDate: new Date().toISOString().substring(0, 10), 
+      status: 'SUCCESS' 
+    };
     this.error = '';
   }
 }

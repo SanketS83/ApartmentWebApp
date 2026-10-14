@@ -1,7 +1,8 @@
 package com.example.society.controller;
 
-import com.example.society.entity.Payment;
+import com.example.society.dto.CashPaymentRequest;
 import com.example.society.dto.PaymentDto;
+import com.example.society.entity.Payment;
 import com.example.society.exception.ErrorResponse;
 import com.example.society.exception.ResourceNotFoundException;
 import com.example.society.service.PaymentService;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -37,6 +39,98 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaymentsByResidentId(residentId));
     }
 
+    @GetMapping("/maintenance/{maintenanceId}")
+    public ResponseEntity<List<Payment>> getPaymentsByMaintenanceId(@PathVariable Long maintenanceId) {
+        return ResponseEntity.ok(paymentService.getPaymentsByMaintenanceId(maintenanceId));
+    }
+
+    // =====================================
+    // 1. STRIPE GATEWAY: CREATE SESSION
+    // =====================================
+    @PostMapping("/stripe/create-session/{maintenanceId}")
+    public ResponseEntity<?> createStripeSession(@PathVariable Long maintenanceId) {
+        try {
+            Map<String, String> res = paymentService.createStripeSession(maintenanceId);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 2. STRIPE GATEWAY: CONFIRM PAYMENT
+    // =====================================
+    @PostMapping("/stripe/confirm")
+    public ResponseEntity<?> confirmPayment(@RequestParam String sessionId) {
+        try {
+            Object res = paymentService.confirmPayment(sessionId);
+            return ResponseEntity.ok(res);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 3. CASH PAYMENT: RESIDENT SUBMISSION
+    // =====================================
+    @PostMapping("/cash/record")
+    public ResponseEntity<?> recordCashPayment(@RequestBody CashPaymentRequest request) {
+        try {
+            Payment payment = paymentService.recordCashPayment(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(payment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 4. CASH PAYMENT: ADMIN APPROVAL
+    // =====================================
+    @PostMapping("/{id}/approve-cash")
+    public ResponseEntity<?> approveCashPayment(@PathVariable Long id) {
+        try {
+            Payment payment = paymentService.approveCashPayment(id);
+            return ResponseEntity.ok(payment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 5. CASH PAYMENT: ADMIN REJECTION
+    // =====================================
+    @PostMapping("/{id}/reject-cash")
+    public ResponseEntity<?> rejectCashPayment(@PathVariable Long id, @RequestParam(required = false) String reason) {
+        try {
+            Payment payment = paymentService.rejectCashPayment(id, reason);
+            return ResponseEntity.ok(payment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 6. DIRECT CASH APPROVAL VIA MAINTENANCE ID
+    // =====================================
+    @PostMapping("/maintenance/{maintenanceId}/approve-cash")
+    public ResponseEntity<?> approveMaintenanceCash(@PathVariable Long maintenanceId) {
+        try {
+            Payment payment = paymentService.approveMaintenanceCash(maintenanceId);
+            return ResponseEntity.ok(payment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // =====================================
+    // 7. STANDARD CRUD
+    // =====================================
     @PostMapping
     public ResponseEntity<Payment> createPayment(@RequestBody PaymentDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(dto));

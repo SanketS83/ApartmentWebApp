@@ -1,83 +1,130 @@
-
-
 <div class="card p-3 shadow-sm mb-4">
-    <h4>{{ isEdit ? 'Edit Payment Record' : 'Record New Payment' }}</h4>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">{{ isEdit ? 'Edit Payment Record' : 'Record New Manual Payment' }}</h4>
+      <span class="badge bg-secondary">Admin Panel</span>
+    </div>
 
-    <div class="alert alert-success" *ngIf="success">{{success}}</div>
-    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+    <div class="alert alert-success py-2" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger py-2" *ngIf="error">{{error}}</div>
 
-    <div class="row mt-3">
-        <div class="col-md-4 mb-3">
-            <label for="maintenanceId" class="form-label">Maintenance Invoice ID</label>
+    <div class="row mt-2">
+        <div class="col-md-3 mb-3">
+            <label for="maintenanceId" class="form-label fw-semibold">Maintenance ID</label>
             <input type="number" class="form-control" [(ngModel)]="currentPayment.maintenanceId" id="maintenanceId">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="transactionId" class="form-label">Transaction ID</label>
-            <input type="text" class="form-control" [(ngModel)]="currentPayment.transactionId" id="transactionId" placeholder="e.g. TXN9872134">
+        <div class="col-md-3 mb-3">
+            <label for="transactionId" class="form-label fw-semibold">Transaction / Ref ID</label>
+            <input type="text" class="form-control" [(ngModel)]="currentPayment.transactionId" id="transactionId" placeholder="e.g. CASH-1234 / TXN987">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="amount" class="form-label">Amount (₹)</label>
+        <div class="col-md-3 mb-3">
+            <label for="amount" class="form-label fw-semibold">Amount (₹)</label>
             <input type="number" class="form-control" [(ngModel)]="currentPayment.amount" id="amount">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="paymentMode" class="form-label">Payment Mode</label>
+        <div class="col-md-3 mb-3">
+            <label for="paymentMode" class="form-label fw-semibold">Payment Mode</label>
             <select class="form-select" [(ngModel)]="currentPayment.paymentMode" id="paymentMode">
+                <option value="Cash">Cash</option>
+                <option value="Online">Online / Stripe</option>
                 <option value="UPI">UPI / QR Code</option>
                 <option value="NetBanking">Net Banking</option>
                 <option value="Credit Card">Credit Card</option>
                 <option value="Debit Card">Debit Card</option>
-                <option value="Cash">Cash</option>
             </select>
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="paymentDate" class="form-label">Payment Date</label>
+        <div class="col-md-3 mb-3">
+            <label for="paymentDate" class="form-label fw-semibold">Payment Date</label>
             <input type="date" class="form-control" [(ngModel)]="currentPayment.paymentDate" id="paymentDate">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="status" class="form-label">Status</label>
+        <div class="col-md-3 mb-3">
+            <label for="status" class="form-label fw-semibold">Status</label>
             <select class="form-select" [(ngModel)]="currentPayment.status" id="status">
-                <option value="Successful">Successful</option>
+                <option value="SUCCESS">SUCCESS</option>
+                <option value="Pending Approval">Pending Approval</option>
                 <option value="Pending">Pending</option>
-                <option value="Failed">Failed</option>
+                <option value="FAILED">FAILED</option>
+                <option value="REJECTED">REJECTED</option>
             </select>
         </div>
+        <div class="col-md-6 mb-3">
+            <label for="remarks" class="form-label fw-semibold">Notes / Remarks</label>
+            <input type="text" class="form-control" [(ngModel)]="currentPayment.remarks" id="remarks" placeholder="e.g. Received at reception counter">
+        </div>
 
-        <div class="col-12 mt-2">
-            <button class="btn btn-primary" *ngIf="!isEdit" (click)="savePayment()">Save</button>
-            <button class="btn btn-success" *ngIf="isEdit" (click)="updatePayment()">Update</button>
-            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        <div class="col-12 mt-1">
+            <button class="btn btn-primary me-2" *ngIf="!isEdit" (click)="savePayment()">Save Record</button>
+            <button class="btn btn-success me-2" *ngIf="isEdit" (click)="updatePayment()">Update Record</button>
+            <button class="btn btn-secondary" (click)="resetForm()">Clear</button>
         </div>
     </div>
 </div>
 
-<div class="table-responsive">
-<table class="table table-bordered shadow-sm">
-  <thead>
-    <tr>
-        <th>SrNo</th>
-        <th>Transaction ID</th>
-        <th>Maintenance ID</th>
-        <th>Amount</th>
-        <th>Method / Mode</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-     <tr *ngFor="let p of payments; let srNo = index">
-        <td>{{srNo+1}}</td>
-        <td><code>{{p.transactionId}}</code></td>
-        <td>#{{p.maintenance?.id || p.maintenanceId}}</td>
-        <td>₹{{p.amount}}</td>
-        <td>{{p.paymentMode}}</td>
-        <td>{{p.paymentDate}}</td>
-        <td><span class="badge" [ngClass]="p.status === 'Successful' ? 'bg-success' : 'bg-warning'">{{p.status}}</span></td>
-        <td>
-            <button class="btn btn-sm btn-warning me-2" (click)="editPayment(p)">Edit</button>
-            <button class="btn btn-sm btn-danger" (click)="deletePayment(p.id!)">Delete</button>
-        </td>
-     </tr>
-  </tbody>
-</table>
+<div class="card shadow-sm p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">Payments Registry & Cash Approval Queue</h5>
+    <button class="btn btn-outline-secondary btn-sm" (click)="loadPayments()">🔄 Refresh Payments</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle shadow-sm">
+      <thead class="table-light">
+        <tr>
+            <th>SrNo</th>
+            <th>Txn Reference</th>
+            <th>Maintenance ID</th>
+            <th>Resident</th>
+            <th>Amount</th>
+            <th>Mode</th>
+            <th>Date</th>
+            <th>Remarks</th>
+            <th>Status</th>
+            <th class="text-center" style="min-width: 200px;">Actions & Cash Approval</th>
+        </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let p of payments; let srNo = index" [class.table-warning]="p.status === 'Pending Approval'">
+            <td>{{srNo + 1}}</td>
+            <td><code class="font-monospace">{{p.transactionId || p.transactionRef}}</code></td>
+            <td>#{{p.maintenance?.id || p.maintenanceId}}</td>
+            <td>{{p.resident?.name || p.maintenance?.resident?.name || '-'}}</td>
+            <td class="fw-bold">₹{{p.amount}}</td>
+            <td>
+              <span class="badge" [ngClass]="p.paymentMode === 'Cash' ? 'bg-secondary' : 'bg-primary'">
+                {{p.paymentMethod || p.paymentMode}}
+              </span>
+            </td>
+            <td>{{p.paymentDate}}</td>
+            <td class="small text-muted">{{p.remarks || '-'}}</td>
+            <td>
+              <span 
+                class="badge" 
+                [ngClass]="{
+                  'bg-success': p.status === 'SUCCESS' || p.status === 'Successful' || p.status === 'Paid',
+                  'bg-info text-dark': p.status === 'Pending Approval' || p.status === 'PENDING_APPROVAL',
+                  'bg-warning text-dark': p.status === 'Pending',
+                  'bg-danger': p.status === 'FAILED' || p.status === 'REJECTED'
+                }"
+              >
+                {{p.status}}
+              </span>
+            </td>
+            <td class="text-center">
+                <!-- CASH APPROVAL BUTTONS -->
+                <div *ngIf="p.status === 'Pending Approval' || (p.paymentMode === 'Cash' && p.status !== 'SUCCESS')" class="d-inline-flex gap-1 mb-1">
+                  <button class="btn btn-sm btn-success fw-bold" (click)="approveCash(p)" title="Approve Cash received">
+                    ✓ Approve Cash
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="rejectCash(p)" title="Reject Cash payment">
+                    ✕ Reject
+                  </button>
+                </div>
+
+                <div class="d-inline-flex gap-1 ms-1">
+                  <button class="btn btn-sm btn-outline-primary" (click)="editPayment(p)">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deletePayment(p.id!)">Delete</button>
+                </div>
+            </td>
+         </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

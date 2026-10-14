@@ -1,79 +1,120 @@
-
-
 <div class="card p-3 shadow-sm mb-4">
-    <h4>{{ isEdit ? 'Edit Maintenance Invoice' : 'Add New Maintenance Invoice' }}</h4>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h4 class="mb-0">{{ isEdit ? 'Edit Maintenance Invoice' : 'Create New Maintenance Entry' }}</h4>
+      <span class="badge bg-secondary">Admin Panel</span>
+    </div>
 
-    <div class="alert alert-success" *ngIf="success">{{success}}</div>
-    <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+    <div class="alert alert-success py-2" *ngIf="success">{{success}}</div>
+    <div class="alert alert-danger py-2" *ngIf="error">{{error}}</div>
 
-    <div class="row mt-3">
-        <div class="col-md-4 mb-3">
-            <label for="flatId" class="form-label">Flat</label>
-            <select class="form-select" [(ngModel)]="currentRecord.flatId" id="flatId">
-                <option *ngFor="let f of flats" [ngValue]="f.id">{{f.building}} - {{f.flatNumber}}</option>
+    <div class="row mt-2">
+        <div class="col-md-3 mb-3">
+            <label for="flatId" class="form-label fw-semibold">Flat / Unit</label>
+            <select class="form-select" [(ngModel)]="currentRecord.flatId" (change)="onFlatChange()" id="flatId">
+                <option *ngFor="let f of flats" [ngValue]="f.id">{{f.building}} - {{f.flatNumber}} ({{f.flatType}})</option>
             </select>
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="month" class="form-label">Month</label>
+        <div class="col-md-3 mb-3">
+            <label for="residentId" class="form-label fw-semibold">Resident</label>
+            <select class="form-select" [(ngModel)]="currentRecord.residentId" id="residentId">
+                <option *ngFor="let r of residents" [ngValue]="r.id">{{r.name}} (Flat {{r.flat?.building}} - {{r.flat?.flatNumber}})</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="month" class="form-label fw-semibold">Month</label>
             <select class="form-select" [(ngModel)]="currentRecord.month" id="month">
                 <option *ngFor="let m of ['January','February','March','April','May','June','July','August','September','October','November','December']" [value]="m">{{m}}</option>
             </select>
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="year" class="form-label">Year</label>
+        <div class="col-md-3 mb-3">
+            <label for="year" class="form-label fw-semibold">Year</label>
             <input type="number" class="form-control" [(ngModel)]="currentRecord.year" id="year">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="amount" class="form-label">Amount (₹)</label>
+        <div class="col-md-3 mb-3">
+            <label for="amount" class="form-label fw-semibold">Amount (₹)</label>
             <input type="number" class="form-control" [(ngModel)]="currentRecord.amount" id="amount">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="dueDate" class="form-label">Due Date</label>
+        <div class="col-md-3 mb-3">
+            <label for="dueDate" class="form-label fw-semibold">Due Date</label>
             <input type="date" class="form-control" [(ngModel)]="currentRecord.dueDate" id="dueDate">
         </div>
-        <div class="col-md-4 mb-3">
-            <label for="status" class="form-label">Payment Status</label>
+        <div class="col-md-3 mb-3">
+            <label for="status" class="form-label fw-semibold">Status</label>
             <select class="form-select" [(ngModel)]="currentRecord.status" id="status">
                 <option value="Pending">Pending</option>
+                <option value="Pending Cash Approval">Pending Cash Approval</option>
                 <option value="Paid">Paid</option>
                 <option value="Overdue">Overdue</option>
             </select>
         </div>
 
-        <div class="col-12 mt-2">
-            <button class="btn btn-primary" *ngIf="!isEdit" (click)="saveRecord()">Save</button>
-            <button class="btn btn-success" *ngIf="isEdit" (click)="updateRecord()">Update</button>
-            <button class="btn btn-secondary ms-2" (click)="resetForm()">Clear</button>
+        <div class="col-md-3 d-flex align-items-end mb-3">
+            <button class="btn btn-primary me-2" *ngIf="!isEdit" (click)="saveRecord()">Generate Invoice</button>
+            <button class="btn btn-success me-2" *ngIf="isEdit" (click)="updateRecord()">Update</button>
+            <button class="btn btn-secondary" (click)="resetForm()">Clear</button>
         </div>
     </div>
 </div>
 
-<div class="table-responsive">
-<table class="table table-bordered shadow-sm">
-  <thead>
-    <tr>
-        <th>SrNo</th>
-        <th>Flat</th>
-        <th>Period</th>
-        <th>Amount</th>
-        <th>Due Date</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-     <tr *ngFor="let m of records; let srNo = index">
-        <td>{{srNo+1}}</td>
-        <td><strong>{{m.flat?.building}} - {{m.flat?.flatNumber}}</strong></td>
-        <td>{{m.month}} {{m.year}}</td>
-        <td>₹{{m.amount}}</td>
-        <td>{{m.dueDate}}</td>
-        <td><span class="badge" [ngClass]="m.status === 'Paid' ? 'bg-success' : (m.status === 'Overdue' ? 'bg-danger' : 'bg-warning')">{{m.status}}</span></td>
-        <td>
-            <button class="btn btn-sm btn-warning me-2" (click)="editRecord(m)">Edit</button>
-            <button class="btn btn-sm btn-danger" (click)="deleteRecord(m.id!)">Delete</button>
-        </td>
-     </tr>
-  </tbody>
-</table>
+<div class="card shadow-sm p-3">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">Maintenance Invoices & Cash Approvals</h5>
+    <button class="btn btn-outline-secondary btn-sm" (click)="loadRecords()">🔄 Refresh Records</button>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle shadow-sm">
+      <thead class="table-light">
+        <tr>
+            <th>SrNo</th>
+            <th>Flat</th>
+            <th>Resident</th>
+            <th>Billing Period</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th class="text-center" style="min-width: 220px;">Actions & Cash Approval</th>
+        </tr>
+      </thead>
+      <tbody>
+         <tr *ngFor="let m of records; let srNo = index" [class.table-warning]="m.status === 'Pending Cash Approval'">
+            <td>{{srNo + 1}}</td>
+            <td><strong>{{m.flat?.building}} - {{m.flat?.flatNumber}}</strong></td>
+            <td>{{m.resident?.name || 'Assigned Resident'}}</td>
+            <td>{{m.month}} {{m.year}}</td>
+            <td class="fw-bold">₹{{m.amount}}</td>
+            <td>{{m.dueDate}}</td>
+            <td>
+              <span 
+                class="badge" 
+                [ngClass]="{
+                  'bg-success': m.status === 'Paid',
+                  'bg-info text-dark': m.status === 'Pending Cash Approval',
+                  'bg-warning text-dark': m.status === 'Pending',
+                  'bg-danger': m.status === 'Overdue'
+                }"
+              >
+                {{m.status}}
+              </span>
+            </td>
+            <td class="text-center">
+                <!-- QUICK CASH APPROVE/REJECT IF PENDING CASH APPROVAL -->
+                <div *ngIf="m.status === 'Pending Cash Approval'" class="d-inline-flex gap-1 mb-1">
+                  <button class="btn btn-sm btn-success fw-bold" (click)="approveCashPayment(m)" title="Approve Cash received at office">
+                    ✓ Approve Cash
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="rejectCashPayment(m)" title="Reject cash payment">
+                    ✕ Reject
+                  </button>
+                </div>
+
+                <div class="d-inline-flex gap-1 ms-1">
+                  <button class="btn btn-sm btn-outline-primary" (click)="editRecord(m)">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteRecord(m.id!)">Delete</button>
+                </div>
+            </td>
+         </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

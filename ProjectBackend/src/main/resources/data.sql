@@ -57,3 +57,11 @@ INSERT INTO event (id, title, description, event_date, event_time, venue)
 VALUES 
 (1, 'Diwali Celebration & Fireworks', 'Grand Diwali celebration, cultural activities, and dinner for all residents.', '2026-11-01', '18:30:00', 'Community Clubhouse')
 ON DUPLICATE KEY UPDATE title=title;
+
+-- Sample Maintenance Dues
+INSERT INTO maintenance (id, flat_id, resident_id, month, year, amount, due_date, status)
+VALUES 
+(1, 1, 1, 'October', 2026, 2500.00, '2026-10-31', 'Pending'),
+(2, 3, 2, 'October', 2026, 2800.00, '2026-10-31', 'Pending')
+ON DUPLICATE KEY UPDATE amount=amount;
+
