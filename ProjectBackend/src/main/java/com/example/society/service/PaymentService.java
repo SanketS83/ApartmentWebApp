@@ -63,6 +63,12 @@ public class PaymentService {
         return paymentRepo.findByMaintenanceId(maintenanceId);
     }
 
+    public boolean isPaidStatus(String status) {
+        if (status == null) return false;
+        String s = status.trim().toUpperCase();
+        return s.equals("SUCCESS") || s.equals("PAID") || s.equals("SUCCESSFUL");
+    }
+
     // ==========================================
     // 1. ONLINE PAYMENT: STRIPE CHECKOUT SESSION
     // ==========================================
@@ -71,8 +77,15 @@ public class PaymentService {
         Maintenance maintenance = maintenanceRepo.findById(maintenanceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + maintenanceId));
 
-        if ("Paid".equalsIgnoreCase(maintenance.getStatus())) {
-            throw new RuntimeException("This maintenance invoice is already paid");
+        if (isPaidStatus(maintenance.getStatus())) {
+            throw new IllegalArgumentException("This maintenance invoice is already paid");
+        }
+
+        List<Payment> existingPayments = paymentRepo.findByMaintenanceId(maintenanceId);
+        for (Payment p : existingPayments) {
+            if (isPaidStatus(p.getStatus())) {
+                throw new IllegalArgumentException("Payment has already been completed for this maintenance invoice");
+            }
         }
 
         double amount = maintenance.getAmount().doubleValue();
@@ -176,8 +189,19 @@ public class PaymentService {
         Maintenance maintenance = maintenanceRepo.findById(request.getMaintenanceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + request.getMaintenanceId()));
 
-        if ("Paid".equalsIgnoreCase(maintenance.getStatus())) {
-            throw new RuntimeException("This maintenance invoice is already paid");
+        if (isPaidStatus(maintenance.getStatus())) {
+            throw new IllegalArgumentException("This maintenance invoice is already paid");
+        }
+
+        List<Payment> existingPayments = paymentRepo.findByMaintenanceId(maintenance.getId());
+        for (Payment p : existingPayments) {
+            if (isPaidStatus(p.getStatus())) {
+                throw new IllegalArgumentException("Payment has already been completed for this maintenance invoice");
+            }
+        }
+
+        if ("Pending Cash Approval".equalsIgnoreCase(maintenance.getStatus())) {
+            throw new IllegalArgumentException("A cash payment request has already been recorded and is awaiting admin approval.");
         }
 
         Resident resident;
@@ -189,7 +213,7 @@ public class PaymentService {
         }
 
         if (resident == null) {
-            throw new RuntimeException("Resident associated with this maintenance record could not be found");
+            throw new IllegalArgumentException("Resident associated with this maintenance record could not be found");
         }
 
         // Find existing payment for this maintenance or create new
@@ -229,6 +253,10 @@ public class PaymentService {
     public Payment approveCashPayment(Long paymentId) {
         Payment payment = getPaymentById(paymentId);
 
+        if (isPaidStatus(payment.getStatus())) {
+            throw new IllegalArgumentException("Payment is already completed and marked as paid.");
+        }
+
         payment.setStatus("SUCCESS");
         payment.setPaymentDate(LocalDate.now());
         payment.setPaymentTime(LocalDateTime.now());
@@ -250,6 +278,10 @@ public class PaymentService {
     public Payment rejectCashPayment(Long paymentId, String reason) {
         Payment payment = getPaymentById(paymentId);
 
+        if (isPaidStatus(payment.getStatus())) {
+            throw new IllegalArgumentException("Cannot reject an already paid payment.");
+        }
+
         payment.setStatus("REJECTED");
         payment.setRemarks(reason != null && !reason.isBlank() ? reason : "Cash payment rejected by Admin");
 
@@ -269,6 +301,10 @@ public class PaymentService {
     public Payment approveMaintenanceCash(Long maintenanceId) {
         Maintenance maintenance = maintenanceRepo.findById(maintenanceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + maintenanceId));
+
+        if (isPaidStatus(maintenance.getStatus())) {
+            throw new IllegalArgumentException("This maintenance invoice is already paid.");
+        }
 
         Payment payment = paymentRepo.findByMaintenance_Id(maintenanceId).orElse(null);
 
@@ -301,15 +337,39 @@ public class PaymentService {
     // ==========================================
     @Transactional
     public Payment createPayment(PaymentDto dto) {
+        if (dto.getMaintenanceId() == null) {
+            throw new IllegalArgumentException("Maintenance ID is required to record a payment.");
+        }
         Maintenance maintenance = maintenanceRepo.findById(dto.getMaintenanceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Maintenance not found with id: " + dto.getMaintenanceId()));
-        Resident resident = residentRepo.findById(dto.getResidentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Resident not found with id: " + dto.getResidentId()));
+
+        if (isPaidStatus(maintenance.getStatus())) {
+            throw new IllegalArgumentException("This maintenance invoice is already paid. A resident can pay maintenance only once.");
+        }
+
+        List<Payment> existingPayments = paymentRepo.findByMaintenanceId(maintenance.getId());
+        for (Payment p : existingPayments) {
+            if (isPaidStatus(p.getStatus())) {
+                throw new IllegalArgumentException("Payment has already been completed for this maintenance invoice. Duplicate payment is not allowed.");
+            }
+        }
+
+        Resident resident = null;
+        if (dto.getResidentId() != null) {
+            resident = residentRepo.findById(dto.getResidentId())
+                    .orElse(maintenance.getResident());
+        } else {
+            resident = maintenance.getResident();
+        }
+
+        if (resident == null) {
+            throw new IllegalArgumentException("Resident associated with this maintenance record could not be found.");
+        }
 
         Payment payment = new Payment();
         payment.setMaintenance(maintenance);
         payment.setResident(resident);
-        payment.setAmount(dto.getAmount());
+        payment.setAmount(dto.getAmount() != null ? dto.getAmount() : maintenance.getAmount());
         payment.setPaymentDate(dto.getPaymentDate() != null ? dto.getPaymentDate() : LocalDate.now());
         payment.setPaymentTime(dto.getPaymentTime() != null ? dto.getPaymentTime() : LocalDateTime.now());
         payment.setPaymentMode(dto.getPaymentMode() != null ? dto.getPaymentMode() : "Cash");
@@ -319,7 +379,7 @@ public class PaymentService {
         payment.setStatus(dto.getStatus() != null ? dto.getStatus() : "SUCCESS");
         payment.setRemarks(dto.getRemarks());
 
-        if ("SUCCESS".equalsIgnoreCase(payment.getStatus()) || "Paid".equalsIgnoreCase(payment.getStatus())) {
+        if (isPaidStatus(payment.getStatus())) {
             maintenance.setStatus("Paid");
             maintenanceRepo.save(maintenance);
         } else if ("Pending Approval".equalsIgnoreCase(payment.getStatus())) {
@@ -333,6 +393,14 @@ public class PaymentService {
     @Transactional
     public Payment updatePayment(Long id, PaymentDto dto) {
         Payment payment = getPaymentById(id);
+
+        // Admin cannot change status of paid payments
+        if (isPaidStatus(payment.getStatus())) {
+            if (dto.getStatus() != null && !dto.getStatus().equalsIgnoreCase(payment.getStatus())) {
+                throw new IllegalArgumentException("Admin cannot change the status of an already paid payment.");
+            }
+        }
+
         if (dto.getAmount() != null) payment.setAmount(dto.getAmount());
         if (dto.getPaymentDate() != null) payment.setPaymentDate(dto.getPaymentDate());
         if (dto.getPaymentMode() != null) payment.setPaymentMode(dto.getPaymentMode());
@@ -342,7 +410,7 @@ public class PaymentService {
         if (dto.getRemarks() != null) payment.setRemarks(dto.getRemarks());
         if (dto.getStatus() != null) {
             payment.setStatus(dto.getStatus());
-            if ("SUCCESS".equalsIgnoreCase(dto.getStatus()) || "Paid".equalsIgnoreCase(dto.getStatus())) {
+            if (isPaidStatus(dto.getStatus())) {
                 if (payment.getMaintenance() != null) {
                     payment.getMaintenance().setStatus("Paid");
                     maintenanceRepo.save(payment.getMaintenance());
@@ -354,6 +422,9 @@ public class PaymentService {
 
     public void deletePayment(Long id) {
         Payment payment = getPaymentById(id);
+        if (isPaidStatus(payment.getStatus())) {
+            throw new IllegalArgumentException("Paid payment records cannot be deleted.");
+        }
         paymentRepo.delete(payment);
     }
 

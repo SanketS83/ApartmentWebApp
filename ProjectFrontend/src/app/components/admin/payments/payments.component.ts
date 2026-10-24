@@ -17,6 +17,7 @@ export class PaymentsComponent implements OnInit {
   isEdit = false;
   success = '';
   error = '';
+  originalPaymentStatus = '';
   currentPayment: any = { 
     maintenanceId: 1, 
     transactionId: '', 
@@ -30,6 +31,12 @@ export class PaymentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPayments();
+  }
+
+  isPaid(status: string | undefined): boolean {
+    if (!status) return false;
+    const s = status.trim().toUpperCase();
+    return s === 'SUCCESS' || s === 'PAID' || s === 'SUCCESSFUL';
   }
 
   loadPayments(): void {
@@ -57,11 +64,27 @@ export class PaymentsComponent implements OnInit {
     this.isEdit = true;
     this.success = '';
     this.error = '';
-    this.currentPayment = { ...p, maintenanceId: p.maintenance ? p.maintenance.id : p.maintenanceId };
+    this.originalPaymentStatus = p.status || '';
+    this.currentPayment = { 
+      ...p, 
+      maintenanceId: p.maintenance ? p.maintenance.id : p.maintenanceId,
+      residentId: p.resident ? p.resident.id : p.residentId
+    };
   }
 
   updatePayment(): void {
     if (!this.currentPayment.id) return;
+
+    if (this.isPaid(this.originalPaymentStatus) && this.currentPayment.status !== this.originalPaymentStatus) {
+      this.error = 'Admin cannot change the status of an already paid payment.';
+      Swal.fire({
+        icon: 'error',
+        title: 'Status Locked',
+        text: 'The status of an already paid payment cannot be changed.'
+      });
+      return;
+    }
+
     this.ps.updatePayment(this.currentPayment.id, this.currentPayment).subscribe({
       next: () => {
         this.success = 'Payment record updated successfully!';
@@ -72,7 +95,16 @@ export class PaymentsComponent implements OnInit {
     });
   }
 
-  deletePayment(id: number): void {
+  deletePayment(id: number, status?: string): void {
+    if (this.isPaid(status)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Action Prohibited',
+        text: 'Paid payment records cannot be deleted.'
+      });
+      return;
+    }
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'Do you want to delete this payment record?',
@@ -87,7 +119,7 @@ export class PaymentsComponent implements OnInit {
             this.success = 'Payment record deleted!';
             this.loadPayments();
           },
-          error: () => this.error = 'Failed to delete payment.'
+          error: (err) => this.error = err?.error?.message || 'Failed to delete payment.'
         });
       }
     });
@@ -169,6 +201,7 @@ export class PaymentsComponent implements OnInit {
 
   resetForm(): void {
     this.isEdit = false;
+    this.originalPaymentStatus = '';
     this.currentPayment = { 
       maintenanceId: 1, 
       transactionId: '', 
@@ -178,5 +211,6 @@ export class PaymentsComponent implements OnInit {
       status: 'SUCCESS' 
     };
     this.error = '';
+    this.success = '';
   }
 }

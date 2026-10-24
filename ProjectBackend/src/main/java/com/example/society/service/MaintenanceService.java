@@ -57,11 +57,27 @@ public class MaintenanceService {
             }
         }
 
+        String month = dto.getMonth() != null ? String.valueOf(dto.getMonth()).trim() : "1";
+        Integer year = dto.getYear() != null ? dto.getYear() : LocalDate.now().getYear();
+
+        // 1 resident can have/pay maintenance only once per month
+        if (maintenanceRepository.findByFlatIdAndMonthIgnoreCaseAndYear(flat.getId(), month, year).isPresent()) {
+            throw new IllegalArgumentException("A maintenance entry already exists for Flat " 
+                    + flat.getBuilding() + " - " + flat.getFlatNumber() 
+                    + " for " + month + " " + year + ". A resident can pay maintenance only once per month.");
+        }
+
+        if (resident != null && maintenanceRepository.findByResidentIdAndMonthIgnoreCaseAndYear(resident.getId(), month, year).isPresent()) {
+            throw new IllegalArgumentException("A maintenance entry already exists for resident " 
+                    + resident.getName() 
+                    + " for " + month + " " + year + ". A resident can pay maintenance only once per month.");
+        }
+
         Maintenance maintenance = new Maintenance();
         maintenance.setFlat(flat);
         maintenance.setResident(resident);
-        maintenance.setMonth(dto.getMonth() != null ? String.valueOf(dto.getMonth()) : "1");
-        maintenance.setYear(dto.getYear() != null ? dto.getYear() : LocalDate.now().getYear());
+        maintenance.setMonth(month);
+        maintenance.setYear(year);
         maintenance.setAmount(dto.getAmount());
         maintenance.setDueDate(dto.getDueDate() != null ? dto.getDueDate() : LocalDate.now().plusDays(15));
         maintenance.setStatus(dto.getStatus() != null ? dto.getStatus() : "Pending");
@@ -71,6 +87,31 @@ public class MaintenanceService {
 
     public Maintenance updateMaintenance(Long id, MaintenanceDto dto) {
         Maintenance maintenance = getMaintenanceById(id);
+
+        Long flatId = dto.getFlatId() != null ? dto.getFlatId() : (maintenance.getFlat() != null ? maintenance.getFlat().getId() : null);
+        Long residentId = dto.getResidentId() != null ? dto.getResidentId() : (maintenance.getResident() != null ? maintenance.getResident().getId() : null);
+        String month = dto.getMonth() != null ? String.valueOf(dto.getMonth()).trim() : maintenance.getMonth();
+        Integer year = dto.getYear() != null ? dto.getYear() : maintenance.getYear();
+
+        // Prevent updating to a month/year that already exists on another record for the flat
+        if (flatId != null && month != null && year != null) {
+            maintenanceRepository.findByFlatIdAndMonthIgnoreCaseAndYear(flatId, month, year)
+                    .ifPresent(existing -> {
+                        if (!existing.getId().equals(id)) {
+                            throw new IllegalArgumentException("Another maintenance entry already exists for this flat for " + month + " " + year + ".");
+                        }
+                    });
+        }
+
+        if (residentId != null && month != null && year != null) {
+            maintenanceRepository.findByResidentIdAndMonthIgnoreCaseAndYear(residentId, month, year)
+                    .ifPresent(existing -> {
+                        if (!existing.getId().equals(id)) {
+                            throw new IllegalArgumentException("Another maintenance entry already exists for this resident for " + month + " " + year + ".");
+                        }
+                    });
+        }
+
         if (dto.getFlatId() != null) {
             Flat flat = flatRepository.findById(dto.getFlatId())
                     .orElseThrow(() -> new ResourceNotFoundException("Flat not found with id: " + dto.getFlatId()));
@@ -81,10 +122,10 @@ public class MaintenanceService {
                     .orElseThrow(() -> new ResourceNotFoundException("Resident not found with id: " + dto.getResidentId()));
             maintenance.setResident(resident);
         }
-        maintenance.setMonth(dto.getMonth());
-        maintenance.setYear(dto.getYear());
-        maintenance.setAmount(dto.getAmount());
-        maintenance.setDueDate(dto.getDueDate());
+        maintenance.setMonth(month);
+        maintenance.setYear(year);
+        if (dto.getAmount() != null) maintenance.setAmount(dto.getAmount());
+        if (dto.getDueDate() != null) maintenance.setDueDate(dto.getDueDate());
         if (dto.getStatus() != null) {
             maintenance.setStatus(dto.getStatus());
         }

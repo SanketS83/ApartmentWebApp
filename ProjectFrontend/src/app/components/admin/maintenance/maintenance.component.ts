@@ -82,9 +82,39 @@ export class MaintenanceComponent implements OnInit {
     }
   }
 
+  originalRecordStatus = '';
+
+  isPaid(status: string | undefined): boolean {
+    if (!status) return false;
+    const s = status.trim().toLowerCase();
+    return s === 'paid';
+  }
+
   saveRecord(): void {
     if (!this.currentRecord.flatId) {
       this.error = 'Please select a flat';
+      return;
+    }
+
+    const selectedMonth = (this.currentRecord.month != null ? String(this.currentRecord.month) : '').trim().toLowerCase();
+    const selectedYear = Number(this.currentRecord.year);
+
+    // 1 resident can have/pay maintenance only once per month
+    const duplicate = this.records.find(r => {
+      const flatMatches = (r.flat?.id === this.currentRecord.flatId || r.flatId === this.currentRecord.flatId);
+      const monthMatches = (r.month != null ? String(r.month) : '').trim().toLowerCase() === selectedMonth;
+      const yearMatches = Number(r.year) === selectedYear;
+      return flatMatches && monthMatches && yearMatches;
+    });
+
+    if (duplicate) {
+      const errMsg = `A maintenance entry already exists for this flat for ${this.currentRecord.month} ${this.currentRecord.year}. 1 resident can pay maintenance only once per month.`;
+      this.error = errMsg;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Duplicate Entry Prohibited',
+        text: errMsg
+      });
       return;
     }
 
@@ -102,6 +132,7 @@ export class MaintenanceComponent implements OnInit {
     this.isEdit = true;
     this.success = '';
     this.error = '';
+    this.originalRecordStatus = m.status || '';
     this.currentRecord = { 
       ...m, 
       flatId: m.flat ? m.flat.id : m.flatId,
@@ -111,6 +142,39 @@ export class MaintenanceComponent implements OnInit {
 
   updateRecord(): void {
     if (!this.currentRecord.id) return;
+
+    if (this.isPaid(this.originalRecordStatus) && !this.isPaid(this.currentRecord.status)) {
+      this.error = 'Status of a paid maintenance invoice cannot be changed.';
+      Swal.fire({
+        icon: 'error',
+        title: 'Status Locked',
+        text: 'A paid maintenance invoice cannot be marked as unpaid.'
+      });
+      return;
+    }
+
+    const selectedMonth = (this.currentRecord.month != null ? String(this.currentRecord.month) : '').trim().toLowerCase();
+    const selectedYear = Number(this.currentRecord.year);
+
+    const duplicate = this.records.find(r => {
+      if (r.id === this.currentRecord.id) return false;
+      const flatMatches = (r.flat?.id === this.currentRecord.flatId || r.flatId === this.currentRecord.flatId);
+      const monthMatches = (r.month != null ? String(r.month) : '').trim().toLowerCase() === selectedMonth;
+      const yearMatches = Number(r.year) === selectedYear;
+      return flatMatches && monthMatches && yearMatches;
+    });
+
+    if (duplicate) {
+      const errMsg = `Another maintenance entry already exists for this flat for ${this.currentRecord.month} ${this.currentRecord.year}.`;
+      this.error = errMsg;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Duplicate Period',
+        text: errMsg
+      });
+      return;
+    }
+
     this.ms.updateMaintenance(this.currentRecord.id, this.currentRecord).subscribe({
       next: () => {
         this.success = 'Maintenance invoice updated!';
@@ -121,7 +185,16 @@ export class MaintenanceComponent implements OnInit {
     });
   }
 
-  deleteRecord(id: number): void {
+  deleteRecord(id: number, status?: string): void {
+    if (this.isPaid(status)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Action Prohibited',
+        text: 'Paid maintenance invoices cannot be deleted.'
+      });
+      return;
+    }
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'Do you want to delete this invoice?',
@@ -136,7 +209,7 @@ export class MaintenanceComponent implements OnInit {
             this.success = 'Invoice deleted successfully!';
             this.loadRecords();
           },
-          error: () => this.error = 'Failed to delete record.'
+          error: (err) => this.error = err?.error?.message || 'Failed to delete record.'
         });
       }
     });

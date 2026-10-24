@@ -36,14 +36,22 @@
             <input type="date" class="form-control" [(ngModel)]="currentPayment.paymentDate" id="paymentDate">
         </div>
         <div class="col-md-3 mb-3">
-            <label for="status" class="form-label fw-semibold">Status</label>
-            <select class="form-select" [(ngModel)]="currentPayment.status" id="status">
+            <label for="status" class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                Status
+                <span *ngIf="isEdit && isPaid(originalPaymentStatus)" class="badge bg-secondary">
+                    🔒 Locked (Paid)
+                </span>
+            </label>
+            <select class="form-select" [(ngModel)]="currentPayment.status" id="status" [disabled]="isEdit && isPaid(originalPaymentStatus)">
                 <option value="SUCCESS">SUCCESS</option>
                 <option value="Pending Approval">Pending Approval</option>
                 <option value="Pending">Pending</option>
                 <option value="FAILED">FAILED</option>
                 <option value="REJECTED">REJECTED</option>
             </select>
+            <small *ngIf="isEdit && isPaid(originalPaymentStatus)" class="text-danger small mt-1 d-block">
+                Admin cannot change status of paid payments.
+            </small>
         </div>
         <div class="col-md-6 mb-3">
             <label for="remarks" class="form-label fw-semibold">Notes / Remarks</label>
@@ -108,8 +116,8 @@
               </span>
             </td>
             <td class="text-center">
-                <!-- CASH APPROVAL BUTTONS -->
-                <div *ngIf="p.status === 'Pending Approval' || (p.paymentMode === 'Cash' && p.status !== 'SUCCESS')" class="d-inline-flex gap-1 mb-1">
+                <!-- CASH APPROVAL BUTTONS (ONLY FOR UNPAID / PENDING APPROVAL) -->
+                <div *ngIf="!isPaid(p.status) && (p.status === 'Pending Approval' || p.paymentMode === 'Cash')" class="d-inline-flex gap-1 mb-1">
                   <button class="btn btn-sm btn-success fw-bold" (click)="approveCash(p)" title="Approve Cash received">
                     ✓ Approve Cash
                   </button>
@@ -120,7 +128,15 @@
 
                 <div class="d-inline-flex gap-1 ms-1">
                   <button class="btn btn-sm btn-outline-primary" (click)="editPayment(p)">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deletePayment(p.id!)">Delete</button>
+                  <button 
+                    class="btn btn-sm" 
+                    [ngClass]="isPaid(p.status) ? 'btn-outline-secondary' : 'btn-outline-danger'" 
+                    [disabled]="isPaid(p.status)"
+                    [title]="isPaid(p.status) ? 'Paid payments cannot be deleted' : 'Delete payment record'"
+                    (click)="deletePayment(p.id!, p.status)"
+                  >
+                    Delete
+                  </button>
                 </div>
             </td>
          </tr>
